@@ -58,6 +58,12 @@
         <button onclick="switchTab('menipis')" id="btnTabMenipis" class="py-2 px-3 rounded-lg font-bold text-gray-500 hover:bg-gray-100 transition-all flex items-center text-sm sm:text-base">
           <i class="fas fa-exclamation-triangle mr-2"></i> Stok Menipis
         </button>
+        <button onclick="switchTab('setting')" id="btnTabSetting" class="py-2 px-3 rounded-lg font-bold text-gray-500 hover:bg-gray-100 transition-all flex items-center text-sm sm:text-base">
+          <i class="fas fa-gear mr-2"></i> Setting
+        </button>
+        <button onclick="logoutApp()" id="btnLogout" class="py-2 px-3 rounded-lg font-bold text-red-500 hover:bg-red-50 transition-all flex items-center text-sm sm:text-base">
+          <i class="fas fa-right-from-bracket mr-2"></i> Logout
+        </button>
       </div>
 
       <div class="flex flex-wrap items-center gap-2">
@@ -356,6 +362,32 @@
       </div>
     </div>
 
+    <!-- SETTING -->
+    <div id="sectionSetting" class="tab-content bg-white p-4 sm:p-6 rounded-2xl shadow-sm border border-slate-200 max-w-2xl mx-auto">
+      <h3 class="text-xl sm:text-2xl font-semibold mb-4 border-b pb-3 text-gray-800"><i class="fas fa-gear text-green-500 mr-2"></i>Pengaturan</h3>
+      <div class="bg-gray-50 p-4 sm:p-5 rounded-xl border border-gray-200">
+        <h4 class="text-sm font-bold text-gray-700 uppercase mb-4 tracking-wider flex items-center"><i class="fas fa-key text-green-600 mr-2"></i>Ubah PIN Login</h4>
+        <div class="space-y-4">
+          <div>
+            <label class="block text-sm font-semibold text-gray-700 mb-1">PIN Lama</label>
+            <input id="settingOldPin" type="password" inputmode="numeric" maxlength="6" pattern="[0-9]*" placeholder="••••••" class="w-full rounded-xl border-gray-300 border p-2 sm:p-3 bg-white tracking-[0.5em] text-center font-bold text-lg">
+          </div>
+          <div>
+            <label class="block text-sm font-semibold text-gray-700 mb-1">PIN Baru (6 digit angka)</label>
+            <input id="settingNewPin" type="password" inputmode="numeric" maxlength="6" pattern="[0-9]*" placeholder="••••••" class="w-full rounded-xl border-gray-300 border p-2 sm:p-3 bg-white tracking-[0.5em] text-center font-bold text-lg">
+          </div>
+          <div>
+            <label class="block text-sm font-semibold text-gray-700 mb-1">Ulangi PIN Baru</label>
+            <input id="settingNewPinConfirm" type="password" inputmode="numeric" maxlength="6" pattern="[0-9]*" placeholder="••••••" class="w-full rounded-xl border-gray-300 border p-2 sm:p-3 bg-white tracking-[0.5em] text-center font-bold text-lg">
+          </div>
+          <div id="settingMsg" class="hidden text-sm rounded-lg px-3 py-2"></div>
+          <button onclick="submitChangePin()" id="btnChangePin" class="w-full bg-green-600 text-white font-bold py-3 px-4 rounded-xl hover:bg-green-700 shadow-lg transition-all duration-200 flex justify-center items-center text-sm sm:text-base">
+            <i class="fas fa-floppy-disk mr-2"></i> Simpan PIN Baru
+          </button>
+        </div>
+      </div>
+    </div>
+
   </div>
 
   <!-- Modal Hapus -->
@@ -403,6 +435,88 @@
     </div>
   </div>
 
+  <!-- LOGIN OVERLAY -->
+  <div id="loginOverlay" class="fixed inset-0 z-[100] flex items-center justify-center bg-gradient-to-br from-emerald-700 via-green-600 to-emerald-500 p-4">
+    <div class="absolute inset-0 overflow-hidden pointer-events-none opacity-20">
+      <i class="fas fa-boxes-stacked absolute text-white text-9xl -top-6 -left-6 rotate-12"></i>
+      <i class="fas fa-warehouse absolute text-white text-9xl bottom-0 right-0 -rotate-12"></i>
+    </div>
+
+    <div class="relative w-full max-w-sm bg-white/95 backdrop-blur-md rounded-3xl shadow-2xl border border-white/40 p-6 sm:p-8 text-center">
+      <div class="w-16 h-16 sm:w-20 sm:h-20 mx-auto mb-4 rounded-2xl bg-gradient-to-br from-green-600 to-emerald-500 flex items-center justify-center shadow-lg">
+        <i class="fas fa-boxes-stacked text-white text-2xl sm:text-3xl"></i>
+      </div>
+      <h1 class="text-xl sm:text-2xl font-extrabold text-gray-800 tracking-tight">Z-TRONIK WAREHOUSE</h1>
+      <p class="text-xs sm:text-sm text-gray-500 mt-1 mb-6">Masukkan PIN untuk membuka sistem stok</p>
+
+      <!-- PIN dots display -->
+      <div id="pinDotsWrap" class="flex justify-center gap-3 mb-2">
+        <span class="pinDot w-4 h-4 rounded-full border-2 border-green-500 bg-transparent transition-all"></span>
+        <span class="pinDot w-4 h-4 rounded-full border-2 border-green-500 bg-transparent transition-all"></span>
+        <span class="pinDot w-4 h-4 rounded-full border-2 border-green-500 bg-transparent transition-all"></span>
+        <span class="pinDot w-4 h-4 rounded-full border-2 border-green-500 bg-transparent transition-all"></span>
+        <span class="pinDot w-4 h-4 rounded-full border-2 border-green-500 bg-transparent transition-all"></span>
+        <span class="pinDot w-4 h-4 rounded-full border-2 border-green-500 bg-transparent transition-all"></span>
+      </div>
+      <input id="pinHiddenInput" type="hidden" value="">
+
+      <p id="loginErrorMsg" class="hidden text-red-600 text-xs sm:text-sm font-semibold mb-3 bg-red-50 border border-red-200 rounded-lg py-2 px-3">
+        <i class="fas fa-circle-exclamation mr-1"></i><span id="loginErrorText">PIN salah, coba lagi.</span>
+      </p>
+
+      <!-- Numpad -->
+      <div id="loginNumpad" class="grid grid-cols-3 gap-3 mt-4">
+        <button type="button" class="numpadBtn" data-key="1">1</button>
+        <button type="button" class="numpadBtn" data-key="2">2</button>
+        <button type="button" class="numpadBtn" data-key="3">3</button>
+        <button type="button" class="numpadBtn" data-key="4">4</button>
+        <button type="button" class="numpadBtn" data-key="5">5</button>
+        <button type="button" class="numpadBtn" data-key="6">6</button>
+        <button type="button" class="numpadBtn" data-key="7">7</button>
+        <button type="button" class="numpadBtn" data-key="8">8</button>
+        <button type="button" class="numpadBtn" data-key="9">9</button>
+        <button type="button" id="btnPinClear" class="numpadBtn !bg-red-50 !text-red-500 !border-red-200">
+          <i class="fas fa-xmark"></i>
+        </button>
+        <button type="button" class="numpadBtn" data-key="0">0</button>
+        <button type="button" id="btnPinBackspace" class="numpadBtn !bg-gray-50 !text-gray-500 !border-gray-200">
+          <i class="fas fa-delete-left"></i>
+        </button>
+      </div>
+
+      <p id="loginLoadingMsg" class="hidden text-green-700 text-xs sm:text-sm font-semibold mt-4">
+        <i class="fas fa-spinner fa-spin mr-2"></i>Memeriksa PIN...
+      </p>
+
+      <p class="text-[10px] sm:text-xs text-gray-400 mt-6">Sistem Manajemen Stok &middot; Akses Terbatas</p>
+    </div>
+  </div>
+
+  <style>
+    .numpadBtn {
+      background: white;
+      border: 1px solid #d1d5db;
+      color: #1f2937;
+      font-weight: 700;
+      font-size: 1.1rem;
+      padding: 0.85rem 0;
+      border-radius: 1rem;
+      transition: all 0.15s ease;
+      box-shadow: 0 1px 2px rgba(0,0,0,0.04);
+    }
+    .numpadBtn:active { transform: scale(0.94); }
+    .numpadBtn:hover { background: #ecfdf5; border-color: #34d399; color: #047857; }
+    .pinDot.filled { background: #16a34a; }
+    .pinDot.shake { animation: pinShake 0.4s; }
+    @keyframes pinShake {
+      0%, 100% { transform: translateX(0); }
+      20% { transform: translateX(-6px); }
+      40% { transform: translateX(6px); }
+      60% { transform: translateX(-6px); }
+      80% { transform: translateX(6px); }
+    }
+  </style>
+
   <script>
     // ========================================================
     // PENTING: MASUKKAN URL WEB APP GAS ANDA DI BAWAH INI:
@@ -422,12 +536,12 @@
     const itemsPerPage = 25;
 
     function switchTab(tabName) {
-      ['sectionTransaksi','sectionHistory','sectionTambah','sectionDaftar','sectionMenipis'].forEach(id => {
+      ['sectionTransaksi','sectionHistory','sectionTambah','sectionDaftar','sectionMenipis','sectionSetting'].forEach(id => {
         const el = document.getElementById(id);
         if(el) el.classList.remove('active');
       });
 
-      ['btnTabTransaksi','btnTabHistory','btnTabTambah','btnTabDaftar','btnTabMenipis'].forEach(id => {
+      ['btnTabTransaksi','btnTabHistory','btnTabTambah','btnTabDaftar','btnTabMenipis','btnTabSetting'].forEach(id => {
         const b = document.getElementById(id);
         if(b) { b.className = "py-2 px-3 rounded-lg font-bold text-gray-500 hover:bg-gray-100 transition-all flex items-center text-sm sm:text-base"; }
       });
@@ -456,6 +570,10 @@
         document.getElementById('btnTabMenipis').classList.add('bg-green-100');
         menipisCurrentPage = 1;
         renderMenipis();
+      } else if(tabName === 'setting') {
+        document.getElementById('sectionSetting').classList.add('active');
+        document.getElementById('btnTabSetting').classList.add('bg-green-100');
+        resetSettingForm();
       }
     }
 
@@ -681,7 +799,7 @@
       if (!pageData || pageData.length === 0) {
         tbody.innerHTML = `<tr><td colspan="12" class="px-6 py-8 text-center text-gray-500 bg-gray-50">Gudang masih kosong Bro! Gass tambah barang.</td></tr>`;
       } else {
-        pageData.forEach((row) => {
+        pageData.forEach((row, idx) => {
           let hrgModal = parseFloat(row.hargaModal) || 0;
           let hrgSatuan = Math.round(parseFloat(row.hargaSatuan) || 0);
           let isi = parseFloat(row.isiDus) || 1;
@@ -708,9 +826,11 @@
 
           const minCell = (!isNaN(min) && min !== '') ? `<span class="text-red-600 font-bold">${min} ${satuanLabel}</span>` : '-';
 
+          const nomorUrutTampilan = start + idx + 1;
+
           tbody.innerHTML += `
             <tr class="hover:bg-green-50/50 transition ${(!isNaN(min) && qty <= min) ? 'bg-red-50' : ''}">
-              <td class="px-4 py-3 text-center text-gray-500">${row.no}</td>
+              <td class="px-4 py-3 text-center text-gray-500">${nomorUrutTampilan}</td>
               <td class="px-4 py-3 font-bold text-gray-800">${row.namaBarang}</td>
               <td class="px-4 py-3 text-right text-gray-700">${formatRp(hrgSatuan)}</td>
               <td class="px-4 py-3 text-right text-gray-700">${formatRp(hrgKemasan)}</td>
@@ -1211,7 +1331,214 @@
       }
     }
 
+    // ========================================================
+    // LOGIN / PIN SYSTEM
+    // ========================================================
+    const LOGIN_SESSION_KEY = 'ztronik_logged_in';
+    let pinBuffer = '';
+
+    function updatePinDots() {
+      const dots = document.querySelectorAll('#pinDotsWrap .pinDot');
+      dots.forEach((dot, idx) => {
+        if(idx < pinBuffer.length) {
+          dot.classList.add('filled');
+        } else {
+          dot.classList.remove('filled');
+        }
+      });
+    }
+
+    function shakePinDots() {
+      const wrap = document.getElementById('pinDotsWrap');
+      const dots = document.querySelectorAll('#pinDotsWrap .pinDot');
+      dots.forEach(dot => dot.classList.add('shake'));
+      setTimeout(() => dots.forEach(dot => dot.classList.remove('shake')), 400);
+    }
+
+    function showLoginError(msg) {
+      const box = document.getElementById('loginErrorMsg');
+      document.getElementById('loginErrorText').innerText = msg || 'PIN salah, coba lagi.';
+      box.classList.remove('hidden');
+      shakePinDots();
+      setTimeout(() => { box.classList.add('hidden'); }, 2500);
+    }
+
+    function resetPinBuffer() {
+      pinBuffer = '';
+      updatePinDots();
+    }
+
+    async function attemptLogin() {
+      const loadingMsg = document.getElementById('loginLoadingMsg');
+      loadingMsg.classList.remove('hidden');
+
+      try {
+        const formData = new URLSearchParams();
+        formData.append('action', 'login');
+        formData.append('pin', pinBuffer);
+
+        const resp = await fetch(GAS_WEB_APP_URL, {
+          method: 'POST',
+          body: formData,
+          headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
+        });
+
+        let resJson = {};
+        try { resJson = await resp.json(); } catch(e) { resJson = {}; }
+
+        loadingMsg.classList.add('hidden');
+
+        if (resJson && resJson.status === 'sukses') {
+          sessionStorage.setItem(LOGIN_SESSION_KEY, '1');
+          hideLoginOverlay();
+          resetPinBuffer();
+        } else {
+          showLoginError(resJson && resJson.pesan ? resJson.pesan : 'PIN salah, coba lagi.');
+          resetPinBuffer();
+        }
+      } catch (err) {
+        console.error('Error login:', err);
+        loadingMsg.classList.add('hidden');
+        showLoginError('Gagal terhubung ke server. Cek koneksi internet.');
+        resetPinBuffer();
+      }
+    }
+
+    function handlePinKey(key) {
+      if(pinBuffer.length >= 6) return;
+      pinBuffer += key;
+      updatePinDots();
+      if(pinBuffer.length === 6) {
+        setTimeout(() => attemptLogin(), 150);
+      }
+    }
+
+    function handlePinBackspace() {
+      pinBuffer = pinBuffer.slice(0, -1);
+      updatePinDots();
+    }
+
+    document.getElementById('loginNumpad').addEventListener('click', (e) => {
+      const btn = e.target.closest('.numpadBtn');
+      if(!btn) return;
+      if(btn.id === 'btnPinBackspace') { handlePinBackspace(); return; }
+      if(btn.id === 'btnPinClear') { resetPinBuffer(); return; }
+      const key = btn.getAttribute('data-key');
+      if(key !== null) handlePinKey(key);
+    });
+
+    document.addEventListener('keydown', (e) => {
+      const overlay = document.getElementById('loginOverlay');
+      if(overlay.classList.contains('hidden')) return;
+      if(/^[0-9]$/.test(e.key)) { handlePinKey(e.key); }
+      else if(e.key === 'Backspace') { handlePinBackspace(); }
+    });
+
+    function hideLoginOverlay() {
+      document.getElementById('loginOverlay').classList.add('hidden');
+    }
+
+    function showLoginOverlay() {
+      document.getElementById('loginOverlay').classList.remove('hidden');
+      resetPinBuffer();
+    }
+
+    function isLoggedIn() {
+      return sessionStorage.getItem(LOGIN_SESSION_KEY) === '1';
+    }
+
+    function logoutApp() {
+      sessionStorage.removeItem(LOGIN_SESSION_KEY);
+      showLoginOverlay();
+    }
+
+    // ========================================================
+    // SETTING - GANTI PIN
+    // ========================================================
+    function resetSettingForm() {
+      document.getElementById('settingOldPin').value = '';
+      document.getElementById('settingNewPin').value = '';
+      document.getElementById('settingNewPinConfirm').value = '';
+      const msgBox = document.getElementById('settingMsg');
+      msgBox.classList.add('hidden');
+      msgBox.innerText = '';
+    }
+
+    function showSettingMsg(msg, isError) {
+      const msgBox = document.getElementById('settingMsg');
+      msgBox.innerText = msg;
+      msgBox.classList.remove('hidden');
+      if(isError) {
+        msgBox.className = 'text-sm rounded-lg px-3 py-2 bg-red-50 text-red-700 border border-red-200';
+      } else {
+        msgBox.className = 'text-sm rounded-lg px-3 py-2 bg-green-50 text-green-700 border border-green-200';
+      }
+    }
+
+    async function submitChangePin() {
+      const oldPin = document.getElementById('settingOldPin').value.trim();
+      const newPin = document.getElementById('settingNewPin').value.trim();
+      const newPinConfirm = document.getElementById('settingNewPinConfirm').value.trim();
+      const btn = document.getElementById('btnChangePin');
+
+      if(!/^[0-9]{6}$/.test(oldPin)) { showSettingMsg('PIN lama harus 6 digit angka.', true); return; }
+      if(!/^[0-9]{6}$/.test(newPin)) { showSettingMsg('PIN baru harus 6 digit angka.', true); return; }
+      if(newPin !== newPinConfirm) { showSettingMsg('Konfirmasi PIN baru tidak cocok.', true); return; }
+
+      const originalHtml = btn.innerHTML;
+      try {
+        btn.disabled = true;
+        btn.classList.add('opacity-75');
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Menyimpan...';
+
+        const formData = new URLSearchParams();
+        formData.append('action', 'changePin');
+        formData.append('oldPin', oldPin);
+        formData.append('newPin', newPin);
+
+        const resp = await fetch(GAS_WEB_APP_URL, {
+          method: 'POST',
+          body: formData,
+          headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
+        });
+
+        let resJson = {};
+        try { resJson = await resp.json(); } catch(e) { resJson = {}; }
+
+        if(resJson && resJson.status === 'sukses') {
+          showSettingMsg('PIN berhasil diubah. Gunakan PIN baru saat login berikutnya.', false);
+          document.getElementById('settingOldPin').value = '';
+          document.getElementById('settingNewPin').value = '';
+          document.getElementById('settingNewPinConfirm').value = '';
+        } else {
+          showSettingMsg(resJson && resJson.pesan ? resJson.pesan : 'Gagal mengubah PIN.', true);
+        }
+      } catch (err) {
+        console.error('Error changePin:', err);
+        showSettingMsg('Gagal terhubung ke server.', true);
+      } finally {
+        btn.disabled = false;
+        btn.classList.remove('opacity-75');
+        btn.innerHTML = originalHtml;
+      }
+    }
+
+    // Restrict setting PIN inputs to numeric only
+    ['settingOldPin','settingNewPin','settingNewPinConfirm'].forEach(id => {
+      const el = document.getElementById(id);
+      if(el) {
+        el.addEventListener('input', () => {
+          el.value = el.value.replace(/[^0-9]/g, '').slice(0, 6);
+        });
+      }
+    });
+
     window.onload = () => {
+      if(isLoggedIn()) {
+        hideLoginOverlay();
+      } else {
+        showLoginOverlay();
+      }
       switchTab('transaksi');
     };
   </script>
